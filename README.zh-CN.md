@@ -4,7 +4,7 @@
 
 **Bitcoin Explorer** 是一个完全在浏览器本地运行的学习站点：动画演示交易、脚本、区块、挖矿、共识、P2P 网络、密钥与闪电网络，并允许你点击任意事件、逐字节解码其原始数据。无需账号、无追踪、无服务器——包括真实密码学在内的一切都在浏览器中本地完成。
 
-它在交互与动画语言上深度参考了 [protocol-explorer-alpha](https://protocol-explorer-alpha.vercel.app/)——同样的蓝图/仪表盘美学、三栏工作区、播放引擎、时序视图与字节解码器，只是主题换成了比特币。
+> **参考源：** 本项目的交互模型、动画语言与视觉设计均参考/改编自 **DilumSanjaya** 的作品 **[protocol-explorer-alpha](https://protocol-explorer-alpha.vercel.app/)**（一个讲解互联网工作原理的教育性 "Protocol Explorer"）——同样的蓝图/仪表盘美学、三栏工作区、播放引擎、时序视图与字节解码器，只是主题换成了比特币。详见下方 [致谢](#致谢)。
 
 ![Bitcoin Explorer — 主界面](screenshots/home-light.jpg)
 
@@ -101,6 +101,18 @@ ref/                       # 用于对照参考站点做一致性验证的 Playw
 
 - 所有演示数据均为教学用途；协议参数（主网大小、手续费、难度、补贴）均为真实值。
 - 不会广播任何内容，也不会有任何数据离开浏览器。
+
+## 致谢
+
+本项目是对 **DilumSanjaya** 创作的 **[protocol-explorer-alpha](https://protocol-explorer-alpha.vercel.app/)** 的比特币主题重制。以下内容移植/改编自该作品，并围绕比特币重新套皮：
+
+- 三栏工作区与整体布局结构
+- 播放引擎与事件/时序时间线模型
+- 逐字节解码器与字段↔十六进制高亮联动
+- 蓝图/仪表盘视觉美学（Iosevka 字体、配色、边框）
+- 缓动曲线（`cubic-bezier(.16,1,.3,1)` / `cubic-bezier(.5,0,.75,0)`）与动效关键帧（lane-flow、pending-sheen、dot-pop、step-in/step-spin/step-pop、caret 等）
+
+所有比特币内容——八章协议课程、五个交互实验、交易/区块/脚本负载，以及底层密码学——均为本项目的原创内容。
 
 ## 许可证
 

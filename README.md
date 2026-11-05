@@ -4,7 +4,7 @@
 
 **Bitcoin Explorer** is a self-hosted, browser-only learning site that animates transactions, scripts, blocks, mining, consensus, the peer-to-peer network, keys and the Lightning Network — then lets you open any event and decode its raw bytes. No accounts, no tracking, no server: everything (including the real cryptography) runs locally in your browser.
 
-It closely follows the interaction and animation language of [protocol-explorer-alpha](https://protocol-explorer-alpha.vercel.app/) — the same blueprint/instrument-panel aesthetic, three-pane workspace, playback engine, sequence view and byte inspector — re-themed around Bitcoin.
+> **Reference / 参考源：** the interaction model, animation language and visual design are adapted from **[protocol-explorer-alpha](https://protocol-explorer-alpha.vercel.app/)** by **DilumSanjaya** (an educational "Protocol Explorer" for how the internet works) — the same blueprint/instrument-panel aesthetic, three-pane workspace, playback engine, sequence view and byte inspector, re-themed around Bitcoin. See [Credits](#credits) below.
 
 ![Bitcoin Explorer — main interface](screenshots/home-light.jpg)
 
@@ -101,6 +101,18 @@ Interactive labs: **Hash Lab**, **Merkle Lab**, **Key Lab**, **UTXO Lab**, **Dif
 
 - All simulation data is educational; protocol parameters (mainnet sizes, fees, difficulty, subsidy) are real.
 - Nothing is broadcast, and no data leaves the browser.
+
+## Credits
+
+This project is a re-theming of **[protocol-explorer-alpha](https://protocol-explorer-alpha.vercel.app/)**, created by **DilumSanjaya**. The following are ported/adapted from that project and re-skinned around Bitcoin:
+
+- the three-pane workspace and overall layout structure
+- the playback engine and event/sequence timeline model
+- the byte-level inspector and field↔hex highlighting
+- the blueprint / instrument-panel visual aesthetic (Iosevka type, palette, borders)
+- the easing curves (`cubic-bezier(.16,1,.3,1)` / `cubic-bezier(.5,0,.75,0)`) and motion keyframes (lane-flow, pending-sheen, dot-pop, step-in/step-spin/step-pop, caret, etc.)
+
+All Bitcoin content — the eight protocol chapters, the five interactive labs, the transaction/block/script payloads, and the underlying cryptography — is original work for this project.
 
 ## License
 
