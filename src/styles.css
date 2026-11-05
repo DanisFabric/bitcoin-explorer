@@ -246,6 +246,78 @@ code {
 }
 
 /* ============================================================
+   MICRO-INTERACTIONS (morphing icons)
+   ============================================================ */
+
+/* Play / pause cross-fade */
+.icon-playpause .pp-shape {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: scale 0.3s var(--ease-out), opacity 0.2s ease;
+}
+
+.icon-playpause .pp-play {
+  scale: 1;
+  opacity: 1;
+}
+
+.icon-playpause .pp-pause {
+  scale: 0.6;
+  opacity: 0;
+}
+
+.icon-playpause.is-playing .pp-play {
+  scale: 0.6;
+  opacity: 0;
+}
+
+.icon-playpause.is-playing .pp-pause {
+  scale: 1;
+  opacity: 1;
+}
+
+/* Theme toggle sun/moon cross-fade */
+.toggle-icon {
+  position: relative;
+  place-items: center;
+}
+
+.icon-btn.toggle-icon {
+  display: grid;
+}
+
+.toggle-icon .tg-shape {
+  grid-area: 1 / 1;
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: rotate 0.4s var(--ease-out), scale 0.4s var(--ease-out), opacity 0.25s ease;
+}
+
+.toggle-icon .tg-moon {
+  rotate: 0deg;
+  scale: 1;
+  opacity: 1;
+}
+
+.toggle-icon .tg-sun {
+  rotate: -90deg;
+  scale: 0.4;
+  opacity: 0;
+}
+
+html[data-theme='dark'] .toggle-icon .tg-moon {
+  rotate: 90deg;
+  scale: 0.4;
+  opacity: 0;
+}
+
+html[data-theme='dark'] .toggle-icon .tg-sun {
+  rotate: 0deg;
+  scale: 1;
+  opacity: 1;
+}
+
+/* ============================================================
    APP SHELL
    ============================================================ */
 
@@ -977,7 +1049,6 @@ code {
   padding: 4px 12px 10px 24px;
   background: linear-gradient(var(--panel-2), var(--panel));
   border-top: 1px dashed var(--line-soft);
-  animation: stepListIn 0.28s var(--ease-out);
   position: relative;
 }
 
@@ -1003,6 +1074,8 @@ code {
   color: var(--ink);
   border: 1px solid transparent;
   transition: background 0.18s, border-color 0.18s;
+  animation: stepIn 0.38s var(--ease-out) backwards;
+  animation-delay: calc(0.08s + var(--i, 0) * 45ms);
 }
 
 .step:hover {
@@ -1028,6 +1101,24 @@ code {
   transition: all 0.2s;
 }
 
+.step-num::after {
+  content: '';
+  position: absolute;
+  inset: -5px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  border-top-color: var(--accent);
+  opacity: 0;
+  scale: 0.6;
+  transition: opacity 0.2s, scale 0.3s var(--ease-out);
+}
+
+.step.on .step-num::after {
+  opacity: 1;
+  scale: 1;
+  animation: stepSpin 0.9s linear infinite;
+}
+
 .step-text {
   display: flex;
   flex-direction: column;
@@ -1043,6 +1134,7 @@ code {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  transition: color 0.3s ease calc(var(--i, 0) * 20ms);
 }
 
 .step-text em {
@@ -1052,6 +1144,7 @@ code {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  transition: color 0.3s ease calc(var(--i, 0) * 20ms);
 }
 
 .step.on .step-num {
@@ -1069,6 +1162,7 @@ code {
   color: #fff;
   background: var(--green);
   border-color: var(--green);
+  animation: stepPop 0.42s var(--ease-out) calc(var(--i, 0) * 30ms) both;
 }
 
 .labs-head {
@@ -1205,23 +1299,42 @@ code {
   top: 12px;
   left: 12px;
   z-index: 5;
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   border: 1px solid var(--line);
   background: var(--panel);
   box-shadow: 0 4px 14px -10px rgba(8, 26, 68, 0.45);
 }
 
+.view-indicator {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 100%;
+  background: var(--accent);
+  z-index: 0;
+  transition: left 0.42s var(--ease-out), width 0.42s var(--ease-out);
+}
+
+.view-indicator.right {
+  left: 50%;
+}
+
 .view-tab {
+  position: relative;
+  z-index: 1;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
-  padding: 8px 12px;
-  font-size: 9px;
+  padding: 8px 14px;
+  font-size: 11px;
   font-weight: 800;
-  letter-spacing: 0.09em;
+  letter-spacing: 0.08em;
   color: var(--muted);
   border-right: 1px solid var(--line-soft);
-  transition: background 0.2s, color 0.2s;
+  transition: color 0.2s;
 }
 
 .view-tab:last-child {
@@ -1229,13 +1342,11 @@ code {
 }
 
 .view-tab:hover {
-  background: var(--panel-3);
   color: var(--ink);
 }
 
 .view-tab.on {
   color: #fff;
-  background: var(--accent);
 }
 
 .scene {
@@ -3346,9 +3457,19 @@ html[data-theme='dark'] .shadow {
   to { opacity: 1; transform: none; }
 }
 
-@keyframes stepListIn {
+@keyframes stepIn {
   from { opacity: 0; transform: translateY(-6px); }
   to { opacity: 1; transform: none; }
+}
+
+@keyframes stepSpin {
+  to { rotate: 360deg; }
+}
+
+@keyframes stepPop {
+  0% { scale: 0.6; opacity: 0.4; }
+  40% { scale: 1.15; opacity: 1; }
+  100% { scale: 1; opacity: 1; }
 }
 
 @keyframes laneFlow {

@@ -13,7 +13,7 @@ import { UtxoLab } from './components/labs/UtxoLab'
 import { DifficultyLab } from './components/labs/DifficultyLab'
 import { chapters, layerNames, labs, protocols } from './data/chapters'
 import type { Chapter, Lang } from './types'
-import { Icon } from './components/icons'
+import { Icon, PlayPause } from './components/icons'
 
 type Progress = Record<string, 'in-progress' | 'done'>
 
@@ -278,6 +278,7 @@ export function App() {
               <div className="top-row">
                 <section className="panel simulation">
                 <div className="view-tabs" role="tablist" aria-label="Visualisation mode">
+                  <span className={`view-indicator ${view === 'sequence' ? 'right' : ''}`} aria-hidden="true" />
                   <button
                     role="tab"
                     aria-selected={view === 'network'}
@@ -353,7 +354,7 @@ export function App() {
             <Icon name="prev" />
           </button>
           <button className="ctl primary wide" onClick={play}>
-            <Icon name={playing ? 'pause' : 'play'} /> {playing ? (lang === 'zh' ? '暂停' : 'PAUSE') : lang === 'zh' ? '播放' : 'PLAY'}
+            <PlayPause playing={playing} /> {playing ? (lang === 'zh' ? '暂停' : 'PAUSE') : lang === 'zh' ? '播放' : 'PLAY'}
           </button>
           <button className="ctl" onClick={() => stepEvent(1)}>
             {lang === 'zh' ? '单步' : 'STEP'}

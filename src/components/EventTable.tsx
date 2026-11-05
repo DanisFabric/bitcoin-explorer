@@ -1,5 +1,5 @@
 import type { Chapter, EventKind, Lang } from '../types'
-import { Icon } from './icons'
+import { Icon, PlayPause } from './icons'
 import { formatTime } from '../lib/format'
 
 const KIND_COLOR: Record<EventKind, string> = {
@@ -76,7 +76,7 @@ export function EventTable({
             <Icon name="prev" size={15} />
           </button>
           <button className="ctl primary play" onClick={onPlay} title="Play / pause (space)">
-            <Icon name={playing ? 'pause' : 'play'} size={15} />
+            <PlayPause playing={playing} size={15} />
             {playing ? (lang === 'zh' ? '暂停' : 'PAUSE') : lang === 'zh' ? '播放' : 'PLAY'}
           </button>
           <button className="ctl" onClick={() => onStep(1)} title="Next event (→)">

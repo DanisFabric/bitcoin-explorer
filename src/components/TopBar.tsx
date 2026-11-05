@@ -143,11 +143,12 @@ export function TopBar({
           )}
         </div>
         <button
-          className="icon-btn theme-btn"
+          className="icon-btn theme-btn toggle-icon"
           aria-label={theme === 'dark' ? 'Light mode' : 'Dark mode'}
           onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
         >
-          <Icon name={theme === 'dark' ? 'sun' : 'moon'} size={18} />
+          <Icon name="moon" size={18} className="tg-shape tg-moon" />
+          <Icon name="sun" size={18} className="tg-shape tg-sun" />
         </button>
       </div>
     </header>

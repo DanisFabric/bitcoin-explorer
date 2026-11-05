@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, type CSSProperties } from 'react'
 import type { Chapter, Lang } from '../types'
 import { Icon } from './icons'
 
@@ -116,11 +116,13 @@ export function Sidebar({
                   <div className="step-list">
                     {c.steps.map((s, i) => {
                       const done = state === 'done' || (state === 'in-progress' && i < stepIndex)
+                      const current = i === stepIndex && state !== 'done'
                       return (
                         <button
                           key={i}
-                          className={`step ${i === stepIndex ? 'on' : ''} ${done ? 'done' : ''}`}
+                          className={`step ${current ? 'on' : ''} ${done ? 'done' : ''}`}
                           onClick={() => onStep(i)}
+                          style={{ '--i': i } as CSSProperties}
                         >
                           <span className="step-num">{done ? <Icon name="check" size={11} /> : i + 1}</span>
                           <span className="step-text">

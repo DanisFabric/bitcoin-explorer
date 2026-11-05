@@ -140,3 +140,24 @@ export function Icon({ name, size = 18, className = '' }: { name: IconName; size
     </svg>
   )
 }
+
+/** Play/pause toggle that cross-fades (scale + fade) between the two glyphs. */
+export function PlayPause({ playing, size = 18, className = '' }: { playing: boolean; size?: number; className?: string }) {
+  return (
+    <svg
+      className={`icon icon-playpause ${playing ? 'is-playing' : ''} ${className}`}
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="square"
+      strokeLinejoin="miter"
+      aria-hidden="true"
+    >
+      <path className="pp-shape pp-play" d="M8 5.4v13.2L19 12 8 5.4Z" fill="currentColor" stroke="none" />
+      <path className="pp-shape pp-pause" d="M7 5h3.6v14H7zM13.4 5H17v14h-3.6z" fill="currentColor" stroke="none" />
+    </svg>
+  )
+}
