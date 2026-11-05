@@ -122,7 +122,10 @@ export function buildP2PKHTransaction(opts: {
   )
   const locktime = u32le(opts.locktime ?? 0)
 
-  const unsigned = concatBytes(prefix, prevRef, varint(0), sequence, outputBytes, locktime)
+  // Legacy SIGHASH_ALL: the signed input's script slot must hold the prevout
+  // scriptPubKey (the locking script being satisfied), other inputs are empty.
+  const scriptCode = scriptPubKey(FIXED_HASH160)
+  const unsigned = concatBytes(prefix, prevRef, varint(scriptCode.length), scriptCode, sequence, outputBytes, locktime)
   const sigHash = sha256d(concatBytes(unsigned, u32le(1)))
   const compact = secp.sign(sigHash, FIXED_KEY, { prehash: false })
   const der = concatBytes(derEncode(compact), new Uint8Array([0x01]))

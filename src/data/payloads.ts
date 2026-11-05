@@ -5,6 +5,7 @@ import {
   concatBytes,
   hexToBytes,
   merkleLevels,
+  reverseHex,
   sha256d,
   u32le,
   u64le,
@@ -150,12 +151,12 @@ function findLowNonce(prevHash: string, merkleRoot: string, bits: number) {
   let nonce = 0
   for (;;) {
     const header = buildBlockHeader({ prevHash, merkleRoot, time: 1729500000, bits, nonce })
-    if (parseInt(header.hash.slice(0, 2), 16) < 4) return nonce
+    if (header.hash.slice(0, 2) === '00') return nonce
     nonce++
   }
 }
 
-const SAMPLE_PREV_BLOCK = '00000000000000000000e3c8f4d1b7a95c2e6f0d8b3a7c1e5f9d2b6a4c8e0f3d7b1a'
+const SAMPLE_PREV_BLOCK = '00000000000000000001a2b3c4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e6f7'
 const blockNonce = findLowNonce(SAMPLE_PREV_BLOCK, MERKLE_ROOT, 0x1d00ffff)
 export const SAMPLE_HEADER = buildBlockHeader({
   prevHash: SAMPLE_PREV_BLOCK,
@@ -176,8 +177,8 @@ export const headerPayload: Payload = {
     { name: t('Time · Bits · Nonce', '时间 · 目标 · 随机数'), bytes: 12, color: '#6d4bdc' },
   ],
   note: t(
-    `Double-SHA-256 of these 80 bytes is ${SAMPLE_HEADER.hash.slice(0, 24)}… — below the difficulty-1 target for nonce ${blockNonce}.`,
-    `对这 80 字节做两次 SHA-256 得到 ${SAMPLE_HEADER.hash.slice(0, 24)}…，nonce 为 ${blockNonce} 时低于难度 1 的目标。`,
+    `Double-SHA-256 of these 80 bytes is ${SAMPLE_HEADER.hash.slice(0, 24)}… for nonce ${blockNonce}. Its leading byte is 0x00 — an easy educational target (mainnet difficulty 1 would need ~2³²× more work).`,
+    `对这 80 字节做两次 SHA-256 得到 ${SAMPLE_HEADER.hash.slice(0, 24)}…（nonce ${blockNonce}）。其首字节为 0x00——一个极简的教学目标（主网难度 1 需要约 2³² 倍的工作量）。`,
   ),
 }
 
@@ -190,7 +191,7 @@ function p2pMessage(command: string, payload: Uint8Array, magic = 'f9beb4d9'): U
 
 const versionPayload = (() => {
   const services = u64le(0x409)
-  const timestamp = u32le(1729500142)
+  const timestamp = u64le(1729500142)
   const addrRecv = concatBytes(services, new Uint8Array(10), new Uint8Array([0xff, 0xff, 203, 0, 113, 10]), new Uint8Array([0x20, 0x8d]))
   const addrFrom = concatBytes(services, new Uint8Array(10), new Uint8Array([0xff, 0xff, 192, 168, 1, 20]), new Uint8Array([0x20, 0x8d]))
   const nonce = u64le(0x9a3f7c21d4e58b06)
@@ -209,15 +210,15 @@ export const versionPayloadDoc: Payload = {
     { off: 16, len: 4, name: t('Payload length', '负载长度'), value: `${versionPayload.length} bytes`, note: t('Little-endian size of the payload that follows.', '后面负载的小端字节长度。') },
     { off: 20, len: 4, name: t('Checksum', '校验和'), value: bytesToHex(versionMessage.slice(20, 24)), note: t('First 4 bytes of double-SHA-256(payload).', '负载双 SHA-256 的前 4 字节。') },
     { off: 24, len: 4, name: t('Protocol version', '协议版本'), value: '70016', note: t('70016 negotiates modern features such as wtxid relay.', '70016 协商 wtxid 中继等现代特性。') },
-    { off: 28, len: 8, name: t('Services', '服务位'), value: '0x0000000000000409', note: t('NODE_NETWORK + NODE_WITNESS + NODE_COMPACT_FILTERS.', 'NODE_NETWORK + NODE_WITNESS + NODE_COMPACT_FILTERS。') },
-    { off: 36, len: 4, name: t('Timestamp', '时间戳'), value: '1729500142', note: t('Sender clock, used for peer address bookkeeping.', '发送方时钟，用于对等节点地址管理。') },
-    { off: 40, len: 26, name: t('Receiver address', '接收方地址'), value: '203.0.113.10:8333', note: t('Network address of the peer being greeted.', '被问候对等节点的网络地址。') },
-    { off: 66, len: 26, name: t('Sender address', '发送方地址'), value: '192.168.1.20:8333', note: t('What the sender believes its own address is.', '发送方认为自己拥有的地址。') },
-    { off: 92, len: 8, name: t('Nonce', '随机数'), value: '0x9a3f7c21d4e58b06', note: t('Detects connections to yourself.', '用于检测连接到自身。') },
-    { off: 100, len: 1, name: t('User agent length', '用户代理长度'), value: '16', note: t('Length prefix of the user agent string.', '用户代理字符串的长度前缀。') },
-    { off: 101, len: 16, name: t('User agent', '用户代理'), value: '/btc-explorer:1.0', note: t('Free-form software identifier; never trust it.', '自由格式的软件标识；不要信任其声明。') },
-    { off: 117, len: 4, name: t('Start height', '起始高度'), value: '870,001', note: t('Tells the peer how far the sender has synced.', '告诉对方自己已同步到的区块高度。') },
-    { off: 121, len: 1, name: t('Relay', '中继'), value: '1 (yes)', note: t('Ask for unconfirmed transaction announcements.', '请求未确认交易公告。') },
+    { off: 28, len: 8, name: t('Services', '服务位'), value: '0x0000000000000409', note: t('NODE_NETWORK | NODE_WITNESS | NODE_NETWORK_LIMITED.', 'NODE_NETWORK | NODE_WITNESS | NODE_NETWORK_LIMITED。') },
+    { off: 36, len: 8, name: t('Timestamp', '时间戳'), value: '1729500142', note: t('int64 Unix time; used for peer address bookkeeping.', 'int64 Unix 时间；用于对等节点地址管理。') },
+    { off: 44, len: 26, name: t('Receiver address', '接收方地址'), value: '203.0.113.10:8333', note: t('Network address of the peer being greeted.', '被问候对等节点的网络地址。') },
+    { off: 70, len: 26, name: t('Sender address', '发送方地址'), value: '192.168.1.20:8333', note: t('What the sender believes its own address is.', '发送方认为自己拥有的地址。') },
+    { off: 96, len: 8, name: t('Nonce', '随机数'), value: '0x9a3f7c21d4e58b06', note: t('Detects connections to yourself.', '用于检测连接到自身。') },
+    { off: 104, len: 1, name: t('User agent length', '用户代理长度'), value: '17', note: t('Length prefix of the user agent string.', '用户代理字符串的长度前缀。') },
+    { off: 105, len: 17, name: t('User agent', '用户代理'), value: '/btc-explorer:1.0', note: t('Free-form software identifier; never trust it.', '自由格式的软件标识；不要信任其声明。') },
+    { off: 122, len: 4, name: t('Start height', '起始高度'), value: '870,001', note: t('Tells the peer how far the sender has synced.', '告诉对方自己已同步到的区块高度。') },
+    { off: 126, len: 1, name: t('Relay', '中继'), value: '1 (yes)', note: t('Ask for unconfirmed transaction announcements.', '请求未确认交易公告。') },
   ],
   note: t(
     'The reply is a verack. Only after that exchange do peers exchange addresses and inventory.',
@@ -225,7 +226,7 @@ export const versionPayloadDoc: Payload = {
   ),
 }
 
-const invPayloadBytes = concatBytes(varint(1), u32le(1), hexToBytes(SAMPLE_TX.txid))
+const invPayloadBytes = concatBytes(varint(1), u32le(1), hexToBytes(reverseHex(SAMPLE_TX.txid)))
 const invMessage = p2pMessage('inv', invPayloadBytes)
 export const invPayloadDoc: Payload = {
   title: t('P2P inv (inventory) message', 'P2P inv（库存）消息'),
@@ -237,7 +238,7 @@ export const invPayloadDoc: Payload = {
     { off: 20, len: 4, name: t('Checksum', '校验和'), value: bytesToHex(invMessage.slice(20, 24)), note: t('Integrity check for the payload.', '负载完整性校验。') },
     { off: 24, len: 1, name: t('Vector count', '向量数量'), value: '1', note: t('One item is announced.', '公告一个数据项。') },
     { off: 25, len: 4, name: t('Type', '类型'), value: '1 (MSG_TX)', note: t('MSG_BLOCK would announce a block.', 'MSG_BLOCK 表示公告区块。') },
-    { off: 29, len: 32, name: t('TXID', '交易 ID'), value: SAMPLE_TX.txid.slice(0, 20) + '…', note: t('The announced transaction. Interested peers answer getdata.', '被公告的交易；感兴趣的节点用 getdata 请求。') },
+    { off: 29, len: 32, name: t('TXID', '交易 ID'), value: SAMPLE_TX.txid.slice(0, 20) + '…', note: t('The announced transaction (internal byte order). Interested peers answer getdata.', '被公告的交易（内部字节序）；感兴趣的节点用 getdata 请求。') },
   ],
   note: t(
     'Inv is a rumour, not the data. It keeps the network cheap: peers fetch only what they lack.',
@@ -261,12 +262,12 @@ export const onionPayloadDoc: Payload = {
   fields: [
     { off: 0, len: 1, name: t('Version', '版本'), value: '0x00', note: t('Sphinx packet version.', 'Sphinx 包版本。') },
     { off: 1, len: 33, name: t('Ephemeral public key', '临时公钥'), value: bytesToHex(onion.slice(1, 34)).slice(0, 20) + '…', note: t('Each hop derives its own shared secret from this key.', '每一跳用它派生各自的共享密钥。') },
-    { off: 34, len: 60, name: t('Hop payload', '跳负载'), value: 'scid · amount · cltv', note: t('The first hop learns only its own next hop.', '第一跳只知道自己的下一跳。') },
-    { off: 94, len: 32, name: t('HMAC', 'HMAC'), value: bytesToHex(onion.slice(94, 126)).slice(0, 20) + '…', note: t('Detects tampering before any forwarding.', '在任何转发之前检测篡改。') },
+    { off: 34, len: 60, name: t('Hop payload', '跳负载'), value: 'scid · amount · cltv', note: t('Decrypted hop payload (demo, shown in plaintext).', '已解密的跳负载（演示，明文展示）。') },
+    { off: 94, len: 32, name: t('HMAC', 'HMAC'), value: bytesToHex(onion.slice(94, 126)).slice(0, 20) + '…', note: t('Per-hop integrity field (illustrative bytes here).', '每一跳的完整性字段（此处为示意字节）。') },
   ],
   note: t(
-    'A real onion is 1,366 bytes and layers one encrypted payload per hop. Routers cannot see the whole path.',
-    '真实洋葱包为 1,366 字节，每一跳只有一层可解密负载；路由节点看不到完整路径。',
+    'A real onion is 1,366 bytes and layers one encrypted payload per hop. Routers cannot see the whole path; this demo shows the first hop decrypted for clarity.',
+    '真实洋葱包为 1,366 字节，每一跳只有一层可解密负载；路由节点看不到完整路径。本演示为清晰起见展示已解密的第一跳。',
   ),
 }
 

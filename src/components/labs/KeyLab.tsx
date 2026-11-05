@@ -95,7 +95,7 @@ export function KeyLab({ lang }: { lang: Lang }) {
         </div>
 
         <div className="lab-card sign-card">
-          <div className="card-title"><span>{L('SIGN & VERIFY', '签名与验证')}</span><em>ECDSA / SHA-256</em></div>
+          <div className="card-title"><span>{L('SIGN & VERIFY', '签名与验证')}</span><em>ECDSA · SHA-256 (demo)</em></div>
 
           <label className="field-label">{L('MESSAGE', '消息')}</label>
           <textarea value={message} onChange={(e) => setMessage(e.target.value)} spellCheck={false} />
@@ -134,8 +134,8 @@ export function KeyLab({ lang }: { lang: Lang }) {
 
           <p className="key-note">
             {L(
-              'Change one character of the message and verification fails: the digest changes, and the signature no longer matches. The private key itself is never part of a transaction.',
-              '改动消息中的一个字符，验证就会失败：摘要改变，签名不再匹配。私钥本身永远不会出现在交易里。',
+              'Change one character of the message and verification fails: the digest changes, and the signature no longer matches. The private key itself is never part of a transaction. (Demo uses a single SHA-256; on-chain transactions sign a double-SHA-256 sighash.)',
+              '改动消息中的一个字符，验证就会失败：摘要改变，签名不再匹配。私钥本身永远不会出现在交易里。（本演示使用单次 SHA-256；链上交易签署的是双 SHA-256 的 sighash。）',
             )}
           </p>
         </div>

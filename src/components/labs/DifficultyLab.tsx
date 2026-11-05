@@ -33,7 +33,19 @@ const HALVINGS = [
   { year: 2028.3, block: 1_050_000, reward: '1.5625', future: true },
 ]
 
-const hashrateEH = (diff: number) => diff * 7.158e-12
+function fmtHash(diff: number): string {
+  let h = diff * 7.158e-12 // EH/s
+  if (h >= 1000) return (h / 1000).toFixed(2) + ' ZH/s'
+  if (h >= 1) return (h >= 100 ? h.toFixed(0) : h.toFixed(1)) + ' EH/s'
+  h *= 1000
+  if (h >= 1) return h.toFixed(1) + ' PH/s'
+  h *= 1000
+  if (h >= 1) return h.toFixed(1) + ' TH/s'
+  h *= 1000
+  if (h >= 1) return h.toFixed(1) + ' GH/s'
+  h *= 1000
+  return h.toFixed(1) + ' MH/s'
+}
 
 function short(n: number) {
   if (n >= 1e15) return (n / 1e15).toFixed(1) + 'P'
@@ -118,7 +130,7 @@ export function DifficultyLab({ lang }: { lang: Lang }) {
           </div>
           <div>
             <span>{L('HASHRATE', '算力')}</span>
-            <strong>{short(hashrateEH(point.diff))}H/s</strong>
+            <strong>{fmtHash(point.diff)}</strong>
           </div>
           <div>
             <span>{L('SUBSIDY', '补贴')}</span>
@@ -188,8 +200,8 @@ export function DifficultyLab({ lang }: { lang: Lang }) {
 
       <div className="diff-stats">
         <div><span>{L('DIFFICULTY GROWTH', '难度增长')}</span><strong>1 → 152T</strong><em>× 1.52 × 10¹⁴</em></div>
-        <div><span>{L('HASHRATE TODAY', '今日全网算力')}</span><strong>≈ 1.09 ZH/s</strong><em>{L('modeled from difficulty', '由难度推算')}</em></div>
-        <div><span>{L('BLOCKS MINED', '已挖区块')}</span><strong>870,001</strong><em>{L('since 2009-01-03', '自 2009-01-03')}</em></div>
+        <div><span>{L('HASHRATE (SNAPSHOT)', '全网算力（快照）')}</span><strong>≈ 1.09 ZH/s</strong><em>{L('modeled from difficulty', '由难度推算')}</em></div>
+        <div><span>{L('BLOCKS MINED', '已挖区块')}</span><strong>870,001</strong><em>{L('snapshot ~2025-07', '快照 ~2025-07')}</em></div>
         <div><span>{L('NEXT HALVING', '下次减半')}</span><strong>2028</strong><em>{L('1.5625 BTC subsidy', '补贴 1.5625 BTC')}</em></div>
       </div>
     </div>

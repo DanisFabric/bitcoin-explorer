@@ -88,7 +88,7 @@ export function UtxoLab({ lang }: { lang: Lang }) {
           <div className="card-title"><span>{L('PAYMENT', '付款')}</span><em>{L('one recipient + change', '一个收款 + 找零')}</em></div>
 
           <label className="field-label">{L('RECIPIENT', '收款地址')}</label>
-          <code className="long">bc1q9d3r8l2k7x4m0p6c5v1n8s2t4h7j0w3e6y9u2i</code>
+          <code className="long">bc1qn57gkxn7tuk5c6u2pc0n6kmunghy7mvtps326mlz</code>
 
           <label className="field-label">{L('AMOUNT', '金额')} · BTC</label>
           <div className="amount-row">

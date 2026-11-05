@@ -35,7 +35,7 @@ export const chapters: Chapter[] = [
     meta: [
       f('Unit', '单位', 'satoshi · 10⁻⁸ BTC'),
       f('Encoding', '编码', 'binary, little-endian'),
-      f('Sighash', '签名哈希', 'BIP-143 · BIP-341'),
+      f('Sighash', '签名哈希', 'legacy SIGHASH_ALL'),
       f('Finality', '最终性', 'probabilistic'),
       f('Typical size', '典型大小', '140–300 vB'),
     ],
@@ -46,8 +46,8 @@ export const chapters: Chapter[] = [
         t: 0,
         focus: ['wallet'],
         body: t(
-          `The wallet scans the UTXO set for outputs locked to its keys. It picks ${(420000).toLocaleString()} sats, builds one input, a ${(250000).toLocaleString()}-sat payment and ${(166500).toLocaleString()} sats of change, then signs SIGHASH_ALL over every byte.`,
-          `钱包在 UTXO 集中寻找锁定到自己密钥的输出，选中 ${(420000).toLocaleString()} 聪，构造一个输入、一笔 ${(250000).toLocaleString()} 聪付款和 ${(166500).toLocaleString()} 聪找零，然后对全部字节做 SIGHASH_ALL 签名。`,
+          `The wallet scans the UTXO set for outputs locked to its keys. It picks ${(420000).toLocaleString()} sats, builds one input, a ${(250000).toLocaleString()}-sat payment and ${(166500).toLocaleString()} sats of change, then signs SIGHASH_ALL, committing to all inputs and outputs (the scriptSig itself is excluded).`,
+          `钱包在 UTXO 集中寻找锁定到自己密钥的输出，选中 ${(420000).toLocaleString()} 聪，构造一个输入、一笔 ${(250000).toLocaleString()} 聪付款和 ${(166500).toLocaleString()} 聪找零，然后用 SIGHASH_ALL 签名，承诺全部输入与输出（scriptSig 本身除外）。`,
         ),
         facts: [
           f('Input', '输入', '420,000 sats · 1 UTXO'),
@@ -166,7 +166,7 @@ export const chapters: Chapter[] = [
           '要花费 P2PKH 输出，钱包先在栈上放两样东西：对 sighash 的 DER 签名，以及自己的压缩公钥。这段数据就是 scriptSig，本身不含逻辑。',
         ),
         facts: [
-          f('Push 1', '推入 1', '71-byte signature'),
+          f('Push 1', '推入 1', '72-byte signature'),
           f('Push 2', '推入 2', '33-byte public key'),
           f('Script type', '脚本类型', 'P2PKH'),
         ],
@@ -207,8 +207,8 @@ export const chapters: Chapter[] = [
         t: 3.6,
         focus: ['node', 'block'],
         body: t(
-          'Consensus requires a clean stack: exactly one element, and it must be true. A false signature, an extra item, or a failed hash check invalidates the whole transaction — there is no partial success.',
-          '共识要求“干净栈”：只能剩一个元素，且必须为 true。签名错误、多余元素或哈希不匹配都会使整笔交易无效，不存在部分成功。',
+          'The result must be exactly one stack element, and it must be true: a failed signature or hash check is a consensus failure and rejects the transaction. Extra leftover items are rejected as non-standard policy — SegWit later made a clean stack a consensus rule for witness scripts too.',
+          '结果必须只剩一个栈元素且为 true：签名或哈希校验失败属于共识失败，会拒绝整笔交易。多余的残留元素会被当作“非标准”政策拒绝——SegWit 之后，干净栈也成为了见证脚本的共识规则。',
         ),
         facts: [
           f('Result', '结果', 'TRUE'),
@@ -237,7 +237,7 @@ export const chapters: Chapter[] = [
       { id: 2, t: 1.2, from: 'tx', to: 'node', kind: 'msg', info: t('output script · hash160 commitment', '输出脚本 · hash160 承诺'), size: '25 B' },
       { id: 3, t: 2.4, from: 'node', to: 'node', kind: 'msg', info: t('CHECKSIG · stack evaluates', 'CHECKSIG · 栈求值'), size: '5 ops' },
       { id: 4, t: 3.6, from: 'node', to: 'block', kind: 'proof', info: t('clean stack · TRUE', '干净栈 · TRUE'), size: '1 item' },
-      { id: 5, t: 4.8, from: 'block', to: 'chain', kind: 'block', info: t('Taproot key-path spend', 'Taproot 密钥路径花费'), size: '57 B witness' },
+      { id: 5, t: 4.8, from: 'block', to: 'chain', kind: 'block', info: t('Taproot key-path spend', 'Taproot 密钥路径花费'), size: '64 B witness' },
     ],
     nodes: [
       { id: 'wallet', kind: 'wallet', label: t('Spender', '花费者'), sub: ADDR.slice(0, 8) + '…', x: 150, y: 370 },
@@ -426,9 +426,9 @@ export const chapters: Chapter[] = [
           '每次哈希相互独立，过去的尝试不会提高下一次的成功率。以 2026 年的难度，单机只占全网极小份额，因此矿工加入矿池并按份额分配收益。',
         ),
         facts: [
-          f('Network', '全网算力', '≈ 620 EH/s'),
+          f('Network', '全网算力', '≈ 1.09 ZH/s'),
           f('Difficulty', '难度', '≈ 152 T'),
-          f('Chance / hash', '单次概率', '≈ 2⁻⁷⁶'),
+          f('Chance / hash', '单次概率', '≈ 2⁻⁷⁹'),
         ],
       },
       {
@@ -470,7 +470,7 @@ export const chapters: Chapter[] = [
       { id: 5, t: 4.8, from: 'node', to: 'chain', kind: 'block', info: t('block accepted · reward matures', '区块被接受 · 奖励待成熟'), size: '1.42 MB', payload: headerPayload },
     ],
     nodes: [
-      { id: 'miner', kind: 'miner', label: t('ASIC farm', 'ASIC 矿场'), sub: '620 EH/s network', x: 150, y: 400 },
+      { id: 'miner', kind: 'miner', label: t('ASIC farm', 'ASIC 矿场'), sub: '1.09 ZH/s network', x: 150, y: 400 },
       { id: 'pool', kind: 'pool', label: t('Mining pool', '矿池'), sub: 'template · shares', x: 390, y: 280 },
       { id: 'node', kind: 'node', label: t('Full node', '全节点'), sub: 'validates the block', x: 630, y: 400 },
       { id: 'gauge', kind: 'gauge', label: t('Difficulty', '难度'), sub: '152 T · +3.2%', x: 860, y: 230 },
@@ -696,7 +696,7 @@ export const chapters: Chapter[] = [
       },
     ],
     events: [
-      { id: 1, t: 0, from: 'n1', to: 'n2', kind: 'msg', info: t('version · height 870,001', 'version · 高度 870,001'), size: '121 B', payload: versionPayloadDoc },
+      { id: 1, t: 0, from: 'n1', to: 'n2', kind: 'msg', info: t('version · height 870,001', 'version · 高度 870,001'), size: '127 B', payload: versionPayloadDoc },
       { id: 2, t: 1.2, from: 'n2', to: 'n1', kind: 'msg', info: t('verack · link established', 'verack · 连接建立'), size: '24 B' },
       { id: 3, t: 2.4, from: 'n3', to: 'n1', kind: 'inv', info: t('inv · MSG_TX 1', 'inv · MSG_TX 1'), size: '61 B', payload: invPayloadDoc },
       { id: 4, t: 3.6, from: 'n1', to: 'n3', kind: 'msg', info: t('getdata · txid requested', 'getdata · 请求 txid'), size: '61 B' },
@@ -788,8 +788,8 @@ export const chapters: Chapter[] = [
         t: 3.6,
         focus: ['key', 'wallet'],
         body: t(
-          'The wallet hashes the parts of the transaction the signature must cover, then signs that digest with its private key. ECDSA is randomized; Schnorr is linear and supports key aggregation. Neither reveals the key.',
-          '钱包先对交易中需要承诺的部分做哈希，再用私钥签署该摘要。ECDSA 是随机化的；Schnorr 具有线性结构，支持密钥聚合。两者都不会泄露私钥。',
+          'The wallet hashes the parts of the transaction the signature must cover, then signs that digest with its private key. ECDSA is historically randomized, but modern wallets use a deterministic nonce (RFC 6979); Schnorr is linear and supports key aggregation. Neither reveals the key.',
+          '钱包先对交易中需要承诺的部分做哈希，再用私钥签署该摘要。ECDSA 历史上使用随机数，但现代钱包普遍采用确定性随机数（RFC 6979）；Schnorr 具有线性结构，支持密钥聚合。两者都不会泄露私钥。',
         ),
         facts: [
           f('Digest', '摘要', 'SHA-256d sighash'),
@@ -823,7 +823,7 @@ export const chapters: Chapter[] = [
     nodes: [
       { id: 'seed', kind: 'seed', label: t('Seed phrase', '助记词'), sub: '24 words · offline', x: 150, y: 290 },
       { id: 'wallet', kind: 'wallet', label: t('Wallet', '钱包'), sub: 'BIP-32 / BIP-84', x: 380, y: 370 },
-      { id: 'key', kind: 'vault', label: t('Keypair', '密钥对'), sub: 'secp256k1 · secp256k1', x: 630, y: 255 },
+      { id: 'key', kind: 'vault', label: t('Keypair', '密钥对'), sub: 'secp256k1', x: 630, y: 255 },
       { id: 'node', kind: 'node', label: t('Full node', '全节点'), sub: 'verifies signatures', x: 860, y: 380 },
     ],
     links: [
@@ -840,8 +840,8 @@ export const chapters: Chapter[] = [
     layer: 5,
     accent: '#6d4bdc',
     summary: t(
-      'Lightning moves bitcoin off-chain through payment channels. Two parties lock funds in a multisig output and exchange signed commitments; only the final state ever touches L1.',
-      '闪电网络通过支付通道把比特币移到链下。双方把资金锁进多签输出并交换签名承诺；只有最终状态才会落回 L1。',
+      'Lightning moves bitcoin off-chain through payment channels. Two parties lock funds in a multisig output and exchange signed commitments; day-to-day updates stay off-chain, and only funding and closing (cooperative or disputed) touch L1.',
+      '闪电网络通过支付通道把比特币移到链下。双方把资金锁进多签输出并交换签名承诺；日常更新在链下进行，只有资金锁定与关闭（合作或争议）才会触碰 L1。',
     ),
     meta: [
       f('Layer', '层级', '2'),
@@ -1054,8 +1054,8 @@ export const chapters: Chapter[] = [
     layer: 1,
     accent: '#0b8b98',
     summary: t(
-      'Fifteen years of Bitcoin difficulty and hashrate on a log scale, with every halving marked. Hover a year to inspect the numbers behind the line.',
-      '十五年比特币难度与算力的对数图，标注每一次减半。悬停查看折线背后的具体数字。',
+      'Seventeen years of Bitcoin difficulty and hashrate on a log scale, with every halving marked. Hover a year to inspect the numbers behind the line.',
+      '十七年比特币难度与算力的对数图，标注每一次减半。悬停查看折线背后的具体数字。',
     ),
     meta: [
       f('Range', '范围', '2009 → 2026'),
@@ -1064,7 +1064,7 @@ export const chapters: Chapter[] = [
       f('Subsidy', '补贴', '50 → 3.125 BTC'),
     ],
     lab: 'difficulty',
-    labTagline: t('Zoom out fifteen years', '拉远看十五年'),
+    labTagline: t('Zoom out seventeen years', '拉远看十七年'),
     steps: [],
     events: [],
     nodes: [],
