@@ -1,0 +1,20 @@
+# Dependencies
+node_modules/
+ref/node_modules/
+
+# Build output
+dist/
+*.tsbuildinfo
+
+# Downloaded reference-site bundles (not authored here; regenerable)
+ref/app.js
+ref/app.css
+
+# Generated verification artifacts (screenshots, regenerable)
+app-shots/
+ref/shots/
+
+# Logs & OS
+*.log
+.DS_Store
+*.local

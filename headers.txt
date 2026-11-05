@@ -1,0 +1,23 @@
+HTTP/1.1 200 Connection established
+
+HTTP/2 200 
+accept-ranges: bytes
+access-control-allow-origin: *
+age: 19597
+cache-control: public, max-age=0, must-revalidate
+content-disposition: inline
+content-type: text/html; charset=utf-8
+cross-origin-opener-policy: same-origin
+date: Thu, 05 Nov 2026 10:12:38 GMT
+etag: "60e576a146410c9b927f6c589c2a06e1"
+last-modified: Thu, 05 Nov 2026 04:46:00 GMT
+permissions-policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
+referrer-policy: strict-origin-when-cross-origin
+server: Vercel
+strict-transport-security: max-age=63072000; includeSubDomains; preload
+x-content-type-options: nosniff
+x-frame-options: DENY
+x-vercel-cache: HIT
+x-vercel-id: hkg1::bf7wm-1793873558028-3b07f638ccc4
+content-length: 5968
+

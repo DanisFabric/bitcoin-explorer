@@ -1,0 +1,11 @@
+import { chromium } from 'playwright-core'
+const browser = await chromium.launch({ channel: 'chrome', headless: true })
+const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, deviceScaleFactor: 2 })
+const page = await ctx.newPage()
+await page.goto('https://protocol-explorer-alpha.vercel.app/', { waitUntil: 'networkidle' })
+await page.waitForTimeout(1500)
+await page.screenshot({ path: 'shots/09-mobile.png' })
+await page.screenshot({ path: 'shots/09-mobile-full.png', fullPage: true })
+const b = await page.evaluate(() => [...document.querySelectorAll('button')].map((x) => x.textContent?.trim()).filter(Boolean))
+console.log(b.join(' | ').slice(0, 1500))
+await browser.close()
